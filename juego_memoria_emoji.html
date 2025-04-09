@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Juego de Memoria</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff; /* Fondo de color agradable */
+            margin: 0;
+            padding: 0;
+        }
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(8, 80px); /* Tablero de 8x8 */
+            gap: 10px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+        .card {
+            width: 80px;
+            height: 80px;
+            background-color: #ffffff;
+            color: #333;
+            font-size: 36px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid #333;
+            border-radius: 10px;
+            box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        .card.hidden {
+            background-color: #87cefa; /* Azul claro para cartas no volteadas */
+            color: transparent;
+        }
+        .card:hover {
+            transform: scale(1.05); /* Animación al pasar el cursor */
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Juego de Memoria</h1>
+    <p><strong>Puntuación:</strong> <span id="score">0</span> puntos</p>
+    <div id="game" class="game-board"></div>
+    <button id="startButton">Iniciar Juego</button>
+    <script>
+        const gameBoard = document.getElementById('game');
+        const startButton = document.getElementById('startButton');
+        const scoreElement = document.getElementById('score');
+        const icons = ['🍎', '🍌', '🍇', '🍓', '🍉', '🍍', '🥝', '🍒', '🍑', '🍋', '🍊', '🥥', '🥭', '🍐', '🫐', '🥑', '🍅', '🌽', '🥕', '🧄', '🥦', '🍄', '🥔', '🌶']; // Lista de íconos únicos
+
+        let cards = [];
+        let flippedCards = [];
+        let matches = 0;
+        let score = 0;
+
+        startButton.addEventListener('click', startGame);
+
+        function startGame() {
+            gameBoard.innerHTML = ''; // Limpia el tablero
+            flippedCards = [];
+            matches = 0;
+            score = 0;
+
+            scoreElement.textContent = score;
+
+            // Barajar íconos y duplicarlos para crear pares
+            const shuffledIcons = [...icons, ...icons].slice(0, 64).sort(() => Math.random() - 0.5);
+
+            shuffledIcons.forEach((icon) => {
+                const card = document.createElement('div');
+                card.classList.add('card', 'hidden');
+                card.dataset.icon = icon;
+                card.textContent = icon;
+
+                card.addEventListener('click', () => flipCard(card));
+                gameBoard.appendChild(card);
+                cards.push(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (!card.classList.contains('hidden') || flippedCards.length === 2) return;
+
+            card.classList.remove('hidden');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.icon === card2.dataset.icon) {
+                matches++;
+                score += 10; // Incrementa la puntuación por cada pareja
+                scoreElement.textContent = score;
+
+                flippedCards = [];
+            } else {
+                setTimeout(() => {
+                    card1.classList.add('hidden');
+                    card2.classList.add('hidden');
+                }, 1000);
+
+                flippedCards = [];
+            }
+        }
+    </script>
+</body>
+</html>
